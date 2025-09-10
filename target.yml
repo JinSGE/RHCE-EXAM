@@ -1,0 +1,17 @@
+---
+- name: Systemd Target Setting ( multi-user -> graphical OR graphical -> multi-user )
+  hosts: all
+  vars:
+    multitarget: multi-user.target
+    graphicaltarget: graphical.target
+  tasks:
+    - name: Booting System Target Setting
+      ansible.builtin.command:
+        cmd: systemctl set-default {{ multitarget }}
+        # cmd: systemctl set-default {{ graphicaltarget }}
+
+    - name: Isolate System Target Setting
+      ansible.builtin.command:
+        cmd: systemctl isolate {{ multitarget }}
+        # cmd: systemctl isolate {{ graphicaltarget }}
+

@@ -1,0 +1,38 @@
+---
+- name: Create the Users (dev, test)
+  hosts: dev,test
+  vars_files:
+    - userlist.yml
+    - pw.yml
+  tasks:
+    ###############################
+    # 1) 그룹 확인 - daemon
+    # 2) 사용자 생성 및 암호 설정
+    ###############################
+    - name: Create the Users (developer)
+      ansible.builtin.user:
+        name: "{{ item.username }}"
+        groups: "{{ item.groups }}"
+        password: "{{ pw_developer | password_hash('sha512') }}"
+        state: present
+      loop: "{{ users }}" # "{{ users[0] }}"
+      when: item.username == "developer"
+
+- name: Create the Users (prod)
+  hosts: prod
+  vars_files:
+    - userlist.yml
+    - pw.yml
+  tasks:
+    ###############################
+    # 1) 그룹 확인 - adm
+    # 2) 사용자 생성 및 암호 설정
+    ###############################
+    - name: Create the Users (manager)
+      ansible.builtin.user:
+        name: "{{ item.username }}"
+        groups: "{{ item.groups }}"
+        password: "{{ pw_manager | password_hash('sha512') }}"
+        state: present
+      loop: "{{ users }}" # "{{ users[1] }}"
+      when: item.username == "manager"

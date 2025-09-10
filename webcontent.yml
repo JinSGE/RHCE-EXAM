@@ -1,0 +1,41 @@
+---
+- name: Make the SELinux + WEB contents
+  hosts: webservers
+  gather_facts: false
+  tasks:
+    ######################################
+    # 1) make the /webdev (group: apache, permission: 2775)
+    #   => SELinux
+    # 2) Symbolic Link:
+    #   => /webdev ==> (Link) ==> /var/www/html/webdev
+    # 3) Make the /webdev/index.html
+    ######################################
+    - name: Make the Directory - /webdev
+      ansible.builtin.file:
+        path: /webdev 
+        state: directory
+        group: apache
+        mode: '2775'
+
+    - name: Create a Symbolic Link ( /webdev -> /var/www/html/webdev )
+      ansible.builtin.file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+
+    - name: Configure the SELinux File Context 
+      # semanage fcontext -a -f httpd_sys_content_t '/webdev(./*)?'
+      community.general.sefcontext:
+        target: '/webdev(/.*)?'
+        setype: httpd_sys_content_t
+        state: present
+
+    - name: Apply new SELinux file context to filesystem
+      # restorecon -irv /webdev
+      ansible.builtin.command: restorecon -irv /webdev
+
+    - name: Make a Index File - /webdev/index.html
+      ansible.builtin.copy:
+        content: "WEBSERVERS\n"
+        dest: /webdev/index.html
+        mode: '0644'

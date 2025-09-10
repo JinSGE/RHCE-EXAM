@@ -1,0 +1,24 @@
+---
+- name: Create users based on host group
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - userlist.yml
+    - pw.yml
+
+  tasks:
+    - name: Create developer user on dev,test hosts
+      ansible.builtin.user:
+        name: "{{ users[0].username }}"
+        groups: "{{ users[0].groups }}"
+        password: "{{ pw_developer | password_hash('sha512') }}"
+        state: present
+      when: "'dev' in group_names or 'test' in group_names"
+
+    - name: Create manager user on prod hosts
+      ansible.builtin.user:
+        name: "{{ users[1].username }}"
+        groups: "{{ users[1].groups }}"
+        password: "{{ pw_manager | password_hash('sha512') }}"
+        state: present
+      when: "'prod' in group_names"

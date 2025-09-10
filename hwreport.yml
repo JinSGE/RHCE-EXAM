@@ -1,0 +1,74 @@
+- name: Make a HardWare Report
+  hosts: all
+  tasks:
+    # #####################################################################################################
+    # 1) URL/hwreport.empty Download and Save /root/hwreport.txt
+    # 2) Edit a file - /root/hwreport.txt (inventory hostname, bios, memory, disksize(SDA, SDB, SDC))
+    # 3) Fetch the files - ~/project/hwreport/*
+    # #########################################################################################################
+        - name: Download hwreport.emtpy file
+          ansible.builtin.get_url:
+            url: http://192.168.10.10/hwreport.empty
+            dest: /root/hwreport.txt
+
+        - name: 1) Change inventory hostname 
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^HOST'
+            line: "HOST={{ ansible_facts['hostname'] }}"
+            state: present
+
+        - name: 2) Change bios version
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^BIOS'
+            line: "BIOS={{ ansible_facts['bios_version'] }}"
+            state: present
+
+        - name: 3) Change total memory in mb
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^MEMORY'
+            line: "MEMORY={{ ansible_facts['memtotal_mb'] }} MB"
+
+        - name: 4) Change SDA_disk size - /dev/sda
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^SDA_DISK'
+            line: |
+              {% if ansible_facts['devices']['sda'] is defined %}
+              SDA_DISK_SIZE={{ ansible_facts['devices']['sda']['size'] }}
+              {% else %}
+              SDA_DISK_SIZE=NONE
+              {% endif %}
+            state: present
+
+        - name: 5) Change SDB_disk size - /dev/sdb
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^SDB_DISK'
+            line: |
+              {% if ansible_devices.sdb is defined %}
+              SDB_DISK_SIZE={{ ansible_devices.sdb.size }}
+              {% else %}
+              SDB_DISK_SIZE=NONE
+              {% endif %}
+            state: present
+
+        - name: 6) Change SDC_disk size - /dev/sdc
+          ansible.builtin.lineinfile:
+            path: /root/hwreport.txt
+            regexp: '^SDC_DISK'
+            line: |
+              {% if ansible_facts['devices']['sdc'] is defined %}
+              SDC_DISK_SIZE={{ ansible_facts['devices']['sdc']['size'] }}
+              {% else %}
+              SDC_DISK_SIZE=NONE
+              {% endif %}
+            state: present
+
+        - name: Final) Store file into hwreport directory
+          ansible.builtin.fetch:
+            src: /root/hwreport.txt
+            dest: hwreport
+

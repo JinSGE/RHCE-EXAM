@@ -1,0 +1,83 @@
+---
+- name: 1. 종합문제
+  hosts: all
+  tasks:
+    - name: 시작 메시지
+      ansible.builtin.debug:
+        msg: "[ OK ] 종합문제"
+
+- name: 2. 시스템 및 패키지 관리
+  # hosts: all
+  tasks:
+    - name: 패키지 설치
+      ansible.builtin.include_tasks:
+        file: packages.yml
+    - name: 시스템 런레벨 변경
+      ansible.builtin.include_tasks:
+        file: target.yml
+
+- name: 3. 시스템 설정 및 시간 동기화
+  # hosts: all
+  tasks:
+    - name: 레드헷 시스템 역할 사용
+      ansible.builtin.include_tasks:
+        file: time_sync2.yml
+
+- name: 4. 웹 서버 설정
+  # hosts: all
+  tasks:
+    - name: 웹 서버 구성 및 확인
+      ansible.builtin.include_tasks:
+        file: webserver.yml
+    - name: 웹 콘텐츠 디렉토리 생성
+      ansible.builtin.include_tasks:
+        file: webcontent.yml
+
+- name: 5. 사용자 및 보안 설정
+  # hosts: all
+  tasks:
+    - name: 사용자 계정 생성
+      ansible.builtin.include_tasks:
+        file: users.yml
+    - name: FTP 서버 구성
+      ansible.builtin.include_tasks:
+        file: ftp.yml
+
+- name: 6. 시스템 디스크 및 볼륨 관리
+  # hosts: all
+  tasks:
+    - name: 논리 볼륨 생성 및 사용
+      ansible.builtin.include_tasks:
+        file: lv.yml
+
+- name: 7. 호스트 파일 및 시스템 설정
+  # hosts: all
+  tasks:
+    - name: 호스트 파일 생성
+      ansible.builtin.include_tasks:
+        file: hosts.yml
+    - name: 파일 콘텐츠 수정
+      ansible.builtin.include_tasks:
+        file: issue.yml
+
+- name: 8. 하드웨어 정보 수집
+  # hosts: all
+  tasks:
+    - name: 하드웨어 보고서 생성
+      ansible.builtin.include_tasks:
+        file: hwreport.yml
+
+- name: 9. 정기적인 작업 수행
+  # hosts: all
+  tasks:
+    - name: 정기적인 잡 수행
+      ansible.builtin.include_tasks:
+        file: cronjob.yml
+
+- name: 10. 역할 생성 및 관리
+  # hosts: all
+  tasks:
+    - name: 역할 생성 및 사용
+      ansible.builtin.include_tasks:
+        file: newrole.yml
+

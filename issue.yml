@@ -1,0 +1,11 @@
+---
+- name: Make the file content (/etc/issue)
+  hosts: all
+  tasks:
+    - name: Make file content in /etc/issue
+      ansible.builtin.copy:
+        content: "{{ mystring }}"
+        dest: /etc/issue
+        owner: root
+        group: root
+        mode: '0644'
